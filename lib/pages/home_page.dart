@@ -154,7 +154,16 @@ class _HomePageState extends State<HomePage> {
                                   icon: Icon(Icons.edit, color: Colors.blue),
                                 ),
                                 SizedBox(width: 16),
-                                Icon(Icons.delete, color: Colors.red),
+
+                                IconButton(
+                                  onPressed: () {
+                                    database.deleteTransactionRepo(
+                                      transaction.transaction.id,
+                                    );
+                                    setState(() {});
+                                  },
+                                  icon: Icon(Icons.delete, color: Colors.red),
+                                ),
                               ],
                             ),
                             title: Text(transaction.transaction.name),

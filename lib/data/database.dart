@@ -86,6 +86,9 @@ class AppDb extends _$AppDb {
       updateAt: Value(DateTime.now()),
     ),
   );
+
+  Future deleteTransactionRepo(int id) =>
+      (delete(transactions)..where((tbl) => tbl.id.equals(id))).go();
 }
 
 LazyDatabase _openConnection() {
