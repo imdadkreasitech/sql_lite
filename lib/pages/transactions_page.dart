@@ -1,9 +1,11 @@
 import 'package:drift/drift.dart' hide Column;
 import 'package:flutter/material.dart';
 import 'package:sql_lite/data/database.dart';
+import 'package:sql_lite/data/transaction_w_category.dart';
 
 class TransactionsPage extends StatefulWidget {
-  const TransactionsPage({super.key});
+  final TransactionWCategory? transaction;
+  const TransactionsPage({super.key, required this.transaction});
 
   @override
   State<TransactionsPage> createState() => _TransactionsPageState();
@@ -21,7 +23,24 @@ class _TransactionsPageState extends State<TransactionsPage> {
   @override
   void initState() {
     super.initState();
-    _categoryFuture = getAllCategory(isExpense ? 0 : 1);
+    if (widget.transaction != null) {
+      updateTransactionView(widget.transaction!);
+    } else {
+      // _categoryFuture = getAllCategory(0);
+      _categoryFuture = getAllCategory(isExpense ? 0 : 1);
+    }
+  }
+
+  void updateTransactionView(TransactionWCategory transaction) {
+    setState(() {
+      isExpense = transaction.category.type == 0;
+      selectedCategory = transaction.category;
+      amountC.text = transaction.transaction.amount.toString();
+      detailC.text = transaction.transaction.name;
+      dateC.text =
+          "${transaction.transaction.transactionDate.day}-${transaction.transaction.transactionDate.month}-${transaction.transaction.transactionDate.year}";
+      _categoryFuture = getAllCategory(isExpense ? 0 : 1);
+    });
   }
 
   Future<List<Category>> getAllCategory(int type) async {
@@ -48,6 +67,22 @@ class _TransactionsPageState extends State<TransactionsPage> {
         );
 
     print("Hasil: $row");
+  }
+
+  Future updateTransaction(
+    int id,
+    String name,
+    int categoryId,
+    int amount,
+    DateTime transactionDate,
+  ) async {
+    await database.updateTransactionRepo(
+      id,
+      name,
+      categoryId,
+      amount,
+      transactionDate,
+    );
   }
 
   @override
@@ -192,6 +227,26 @@ class _TransactionsPageState extends State<TransactionsPage> {
               Center(
                 child: ElevatedButton(
                   onPressed: () {
+                    if (selectedCategory == null ||
+                        amountC.text.isEmpty ||
+                        detailC.text.isEmpty ||
+                        dateC.text.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text("Please fill all fields")),
+                      );
+                      return;
+                    }
+                    if (widget.transaction != null) {
+                      updateTransaction(
+                        widget.transaction!.transaction.id,
+                        detailC.text,
+                        selectedCategory!.id,
+                        int.parse(amountC.text),
+                        DateTime.now(),
+                      );
+                      Navigator.pop(context);
+                      return;
+                    }
                     insertTransaction(
                       detailC.text,
                       selectedCategory!.id,

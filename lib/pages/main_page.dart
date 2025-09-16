@@ -66,7 +66,9 @@ class _MainPageState extends State<MainPage> {
           onPressed: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => TransactionsPage()),
+              MaterialPageRoute(
+                builder: (context) => TransactionsPage(transaction: null),
+              ),
             ).then((value) => setState(() {}));
           },
           child: const Icon(Icons.add),

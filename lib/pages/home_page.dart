@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sql_lite/data/database.dart';
 import 'package:sql_lite/data/transaction_w_category.dart';
+import 'package:sql_lite/pages/transactions_page.dart';
 
 class HomePage extends StatefulWidget {
   final DateTime selectedDate;
@@ -136,7 +137,22 @@ class _HomePageState extends State<HomePage> {
                             trailing: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Icon(Icons.edit, color: Colors.blue),
+                                IconButton(
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder:
+                                            (context) => TransactionsPage(
+                                              transaction: transaction,
+                                              // transaction: transaction.transaction,
+                                              // category: transaction.category,
+                                            ),
+                                      ),
+                                    ).then((value) => setState(() {}));
+                                  },
+                                  icon: Icon(Icons.edit, color: Colors.blue),
+                                ),
                                 SizedBox(width: 16),
                                 Icon(Icons.delete, color: Colors.red),
                               ],
@@ -150,15 +166,15 @@ class _HomePageState extends State<HomePage> {
                                 color: Colors.white,
                                 borderRadius: BorderRadius.circular(8.0),
                               ),
-                              child: Icon(Icons.download, color: Colors.green),
-                              // Icon(
-                              //   transaction.transaction.type == 0
-                              //       ? Icons.upload
-                              //       : Icons.download,
-                              //   color: transaction.transaction.type == 0
-                              //       ? Colors.red
-                              //       : Colors.green,
-                              // ),
+                              child: Icon(
+                                transaction.category.type == 0
+                                    ? Icons.upload
+                                    : Icons.download,
+                                color:
+                                    transaction.category.type == 0
+                                        ? Colors.red
+                                        : Colors.green,
+                              ),
                             ),
                           ),
                         ),

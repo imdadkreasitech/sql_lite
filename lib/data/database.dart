@@ -47,10 +47,11 @@ class AppDb extends _$AppDb {
         categories,
         categories.id.equalsExp(transactions.categoryI),
       ),
-    ])
-      ..where(transactions.transactionDate.year.equals(date.year) &
+    ])..where(
+      transactions.transactionDate.year.equals(date.year) &
           transactions.transactionDate.month.equals(date.month) &
-          transactions.transactionDate.day.equals(date.day));
+          transactions.transactionDate.day.equals(date.day),
+    );
     // ..orderBy([
     //   OrderingTerm(
     //     expression: transactions.transactionDate,
@@ -69,6 +70,22 @@ class AppDb extends _$AppDb {
           }).toList(),
     );
   }
+
+  Future updateTransactionRepo(
+    int id,
+    String name,
+    int categoryId,
+    int amount,
+    DateTime transactionDate,
+  ) => (update(transactions)..where((tbl) => tbl.id.equals(id))).write(
+    TransactionsCompanion(
+      name: Value(name),
+      categoryI: Value(categoryId),
+      amount: Value(amount),
+      transactionDate: Value(transactionDate),
+      updateAt: Value(DateTime.now()),
+    ),
+  );
 }
 
 LazyDatabase _openConnection() {
