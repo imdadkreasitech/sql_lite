@@ -192,20 +192,17 @@ class _TransactionsPageState extends State<TransactionsPage> {
               Center(
                 child: ElevatedButton(
                   onPressed: () {
-                    database.getAllCategoryRepo(isExpense ? 0 : 1).then((
-                      categoryList,
-                    ) {
-                      insertTransaction(
-                        detailC.text,
-                        selectedCategory!.id,
-                        int.parse(amountC.text),
-                        DateTime.now(),
-                      );
-                      amountC.clear();
-                      detailC.clear();
-                      dateC.clear();
-                      setState(() {});
-                    });
+                    insertTransaction(
+                      detailC.text,
+                      selectedCategory!.id,
+                      int.parse(amountC.text),
+                      DateTime.now(),
+                    );
+                    amountC.clear();
+                    detailC.clear();
+                    dateC.clear();
+                    setState(() {});
+                    Navigator.pop(context);
                   },
                   child: Text("Add Transaction"),
                 ),

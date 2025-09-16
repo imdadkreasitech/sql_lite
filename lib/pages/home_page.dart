@@ -1,13 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:sql_lite/data/database.dart';
+import 'package:sql_lite/data/transaction_w_category.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  final DateTime selectedDate;
+  const HomePage({super.key, required this.selectedDate});
 
   @override
   State<HomePage> createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
+  final AppDb database = AppDb();
+
+  Future<List<TransactionWCategory>> getAllTransactionByDate(
+    DateTime date,
+  ) async {
+    return await database.getAllTransactionByDateRepo(date).first;
+  }
+
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -98,55 +109,168 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
 
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Card(
-                child: ListTile(
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.edit, color: Colors.blue),
-                      SizedBox(width: 16),
-                      Icon(Icons.delete, color: Colors.red),
-                    ],
-                  ),
-                  title: Text("Rp.200.000"),
-                  subtitle: Text("Shopping"),
-                  leading: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
-                    child: Icon(Icons.download, color: Colors.green),
-                  ),
-                ),
-              ),
+            StreamBuilder(
+              stream: database.getAllTransactionByDateRepo(widget.selectedDate),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(child: CircularProgressIndicator());
+                } else if (snapshot.hasError) {
+                  return Center(child: Text("Error: ${snapshot.error}"));
+                } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                  print(
+                    "data: ${snapshot.hasData} length: ${snapshot.data?.length}",
+                  );
+                  return Center(child: Text("No transactions found."));
+                } else {
+                  final transactions = snapshot.data!;
+                  return ListView.builder(
+                    shrinkWrap: true,
+                    physics: NeverScrollableScrollPhysics(),
+                    itemCount: transactions.length,
+                    itemBuilder: (context, index) {
+                      final transaction = transactions[index];
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: Card(
+                          child: ListTile(
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(Icons.edit, color: Colors.blue),
+                                SizedBox(width: 16),
+                                Icon(Icons.delete, color: Colors.red),
+                              ],
+                            ),
+                            title: Text(transaction.transaction.name),
+                            subtitle: Text(
+                              "${transaction.category.name} - Rp.${transaction.transaction.amount}",
+                            ),
+                            leading: Container(
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(8.0),
+                              ),
+                              child: Icon(Icons.download, color: Colors.green),
+                              // Icon(
+                              //   transaction.transaction.type == 0
+                              //       ? Icons.upload
+                              //       : Icons.download,
+                              //   color: transaction.transaction.type == 0
+                              //       ? Colors.red
+                              //       : Colors.green,
+                              // ),
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  );
+                }
+              },
             ),
 
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Card(
-                child: ListTile(
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.edit, color: Colors.blue),
-                      SizedBox(width: 16),
-                      Icon(Icons.delete, color: Colors.red),
-                    ],
-                  ),
-                  title: Text("Rp.10.000.000"),
-                  subtitle: Text("Gaji Bulanan"),
-                  leading: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
-                    child: Icon(Icons.download, color: Colors.green),
-                  ),
-                ),
-              ),
-            ),
+            // StreamBuilder(
+            //   // stream: getAllTransactionByDate(widget.selectedDate),
+            //   builder: (context, snapshot) {
+            //     if (snapshot.connectionState == ConnectionState.waiting) {
+            //       return Center(child: CircularProgressIndicator());
+            //     } else if (snapshot.hasError) {
+            //       return Center(child: Text("Error: ${snapshot.error}"));
+            //     } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            //       return Center(child: Text("No transactions found."));
+            //     } else {
+            //       final transactions = snapshot.data!;
+            //       return ListView.builder(
+            //         shrinkWrap: true,
+            //         physics: NeverScrollableScrollPhysics(),
+            //         itemCount: transactions.length,
+            //         itemBuilder: (context, index) {
+            //           final transaction = transactions[index];
+            //           return Padding(
+            //             padding: const EdgeInsets.symmetric(horizontal: 16),
+            //             child: Card(
+            //               child: ListTile(
+            //                 trailing: Row(
+            //                   mainAxisSize: MainAxisSize.min,
+            //                   children: [
+            //                     Icon(Icons.edit, color: Colors.blue),
+            //                     SizedBox(width: 16),
+            //                     Icon(Icons.delete, color: Colors.red),
+            //                   ],
+            //                 ),
+            //                 title: Text("Rp.${transaction.transaction.amount}"),
+            //                 subtitle: Text(transaction.category.name),
+            //                 leading: Container(
+            //                   decoration: BoxDecoration(
+            //                     color: Colors.white,
+            //                     borderRadius: BorderRadius.circular(8.0),
+            //                   ),
+            //                   child: Icon(
+            //                     transaction.transaction.type == 0
+            //                         ? Icons.upload
+            //                         : Icons.download,
+            //                     color: transaction.transaction.type == 0
+            //                         ? Colors.red
+            //                         : Colors.green,
+            //                   ),
+            //                 ),
+            //               ),
+            //             ),
+            //           );
+            //         },
+            //       );
+            //     }
+            //   },
+            // )
+            // Padding(
+            //   padding: const EdgeInsets.symmetric(horizontal: 16),
+            //   child: Card(
+            //     child: ListTile(
+            //       trailing: Row(
+            //         mainAxisSize: MainAxisSize.min,
+            //         children: [
+            //           Icon(Icons.edit, color: Colors.blue),
+            //           SizedBox(width: 16),
+            //           Icon(Icons.delete, color: Colors.red),
+            //         ],
+            //       ),
+            //       title: Text("Rp.200.000"),
+            //       subtitle: Text("Shopping"),
+            //       leading: Container(
+            //         decoration: BoxDecoration(
+            //           color: Colors.white,
+            //           borderRadius: BorderRadius.circular(8.0),
+            //         ),
+            //         child: Icon(Icons.download, color: Colors.green),
+            //       ),
+            //     ),
+            //   ),
+            // ),
+
+            // Padding(
+            //   padding: const EdgeInsets.symmetric(horizontal: 16),
+            //   child: Card(
+            //     child: ListTile(
+            //       trailing: Row(
+            //         mainAxisSize: MainAxisSize.min,
+            //         children: [
+            //           Icon(Icons.edit, color: Colors.blue),
+            //           SizedBox(width: 16),
+            //           Icon(Icons.delete, color: Colors.red),
+            //         ],
+            //       ),
+            //       title: Text("Rp.10.000.000"),
+            //       subtitle: Text("Gaji Bulanan"),
+            //       leading: Container(
+            //         decoration: BoxDecoration(
+            //           color: Colors.white,
+            //           borderRadius: BorderRadius.circular(8.0),
+            //         ),
+            //         child: Icon(Icons.download, color: Colors.green),
+            //       ),
+            //     ),
+            //   ),
+            // ),
           ],
         ),
       ),

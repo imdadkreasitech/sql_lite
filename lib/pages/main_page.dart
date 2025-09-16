@@ -1,5 +1,6 @@
 import 'package:calendar_appbar/calendar_appbar.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:sql_lite/pages/category_page.dart';
 import 'package:sql_lite/pages/home_page.dart';
 import 'package:sql_lite/pages/transactions_page.dart';
@@ -12,14 +13,32 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
-  final List<Widget> _page = [HomePage(), CategoryPage()];
+  late DateTime selectedDate;
+  late List<Widget> _page;
 
-  int _selectedIndex = 0;
+  late int _selectedIndex;
 
   void onTap(int index) {
     setState(() {
       _selectedIndex = index;
     });
+  }
+
+  void updateview(int idx, DateTime? date) {
+    setState(() {
+      if (date != null) {
+        selectedDate = DateTime.parse(DateFormat('yyyy-MM-dd').format(date));
+      }
+
+      _selectedIndex = idx;
+      _page = [HomePage(selectedDate: selectedDate), CategoryPage()];
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    updateview(0, DateTime.now());
   }
 
   @override
@@ -30,7 +49,13 @@ class _MainPageState extends State<MainPage> {
               ? CalendarAppBar(
                 backButton: false,
                 accent: Colors.deepPurpleAccent,
-                onDateChanged: (value) => print(value),
+                onDateChanged:
+                    (value) => {
+                      print("value: $value"),
+                      setState(() {
+                        updateview(0, value);
+                      }),
+                    },
                 firstDate: DateTime.now().subtract(Duration(days: 140)),
                 lastDate: DateTime.now(),
               )
@@ -54,14 +79,14 @@ class _MainPageState extends State<MainPage> {
           children: [
             IconButton(
               onPressed: () {
-                onTap(0);
+                updateview(0, DateTime.now());
               },
               icon: const Icon(Icons.home),
             ),
             SizedBox(width: 20),
             IconButton(
               onPressed: () {
-                onTap(1);
+                updateview(1, null);
               },
               icon: const Icon(Icons.list),
             ),

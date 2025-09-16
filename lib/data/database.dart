@@ -7,6 +7,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 import 'package:sql_lite/data/category.dart';
 import 'package:sql_lite/data/transaction.dart';
+import 'package:sql_lite/data/transaction_w_category.dart';
 
 part 'database.g.dart';
 
@@ -37,6 +38,37 @@ class AppDb extends _$AppDb {
   //   ..where((tbl) => tbl.id.equals(id))).write(
   //   CategoriesCompanion(deleteAt: Value(DateTime.now())),
   // );
+
+  Stream<List<TransactionWCategory>> getAllTransactionByDateRepo(
+    DateTime date,
+  ) {
+    final query = select(transactions).join([
+      leftOuterJoin(
+        categories,
+        categories.id.equalsExp(transactions.categoryI),
+      ),
+    ])
+      ..where(transactions.transactionDate.year.equals(date.year) &
+          transactions.transactionDate.month.equals(date.month) &
+          transactions.transactionDate.day.equals(date.day));
+    // ..orderBy([
+    //   OrderingTerm(
+    //     expression: transactions.transactionDate,
+    //     mode: OrderingMode.desc,
+    //   ),
+    // ]);
+    print(" query: $query");
+
+    return query.watch().map(
+      (rows) =>
+          rows.map((row) {
+            return TransactionWCategory(
+              transaction: row.readTable(transactions),
+              category: row.readTable(categories),
+            );
+          }).toList(),
+    );
+  }
 }
 
 LazyDatabase _openConnection() {
