@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:sql_lite/data/database.dart';
 import 'package:sql_lite/data/transaction_w_category.dart';
 import 'package:sql_lite/pages/live_location_page.dart';
+import 'package:sql_lite/pages/map_page.dart';
 import 'package:sql_lite/pages/transactions_page.dart';
 
 class HomePage extends StatefulWidget {
@@ -234,6 +235,19 @@ class _HomePageState extends State<HomePage> {
                   );
                 },
                 child: Text("To Live Location Page"),
+              ),
+            ),
+            SizedBox(height: 20),
+
+            Center(
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => MapPage()),
+                  );
+                },
+                child: Text("To Map Page"),
               ),
             ),
 
