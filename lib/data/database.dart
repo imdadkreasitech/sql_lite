@@ -89,6 +89,28 @@ class AppDb extends _$AppDb {
 
   Future deleteTransactionRepo(int id) =>
       (delete(transactions)..where((tbl) => tbl.id.equals(id))).go();
+
+  Stream<int> getIncomeByDate(DateTime date) {
+    final query = select(transactions)..where(
+      (tbl) =>
+          tbl.transactionDate.year.equals(date.year) &
+          tbl.transactionDate.month.equals(date.month) &
+          tbl.transactionDate.day.equals(date.day) &
+          tbl.amount.isBiggerThanValue(0),
+    );
+
+    return query.watch().map((rows) {
+      return rows.fold<int>(
+        0,
+        (previousValue, element) => previousValue + element.amount,
+      );
+    });
+  }
+
+  Future clearAllData() async {
+    await delete(categories).go();
+    await delete(transactions).go();
+  }
 }
 
 LazyDatabase _openConnection() {

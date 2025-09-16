@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sql_lite/data/database.dart';
 import 'package:sql_lite/data/transaction_w_category.dart';
+import 'package:sql_lite/pages/live_location_page.dart';
 import 'package:sql_lite/pages/transactions_page.dart';
 
 class HomePage extends StatefulWidget {
@@ -56,13 +57,41 @@ class _HomePageState extends State<HomePage> {
                               "Income",
                               style: TextStyle(color: Colors.white),
                             ),
-                            Text(
-                              "Rp.10.000.000",
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
+                            StreamBuilder<int>(
+                              stream: database.getIncomeByDate(
+                                widget.selectedDate,
                               ),
+                              builder: (context, snapshot) {
+                                if (snapshot.connectionState ==
+                                    ConnectionState.waiting) {
+                                  return Text(
+                                    "Rp.0",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  );
+                                } else if (snapshot.hasError) {
+                                  return Text(
+                                    "Error",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  );
+                                } else {
+                                  return Text(
+                                    "Rp.${snapshot.data ?? 0}",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  );
+                                }
+                              },
                             ),
                           ],
                         ),
@@ -194,108 +223,21 @@ class _HomePageState extends State<HomePage> {
               },
             ),
 
-            // StreamBuilder(
-            //   // stream: getAllTransactionByDate(widget.selectedDate),
-            //   builder: (context, snapshot) {
-            //     if (snapshot.connectionState == ConnectionState.waiting) {
-            //       return Center(child: CircularProgressIndicator());
-            //     } else if (snapshot.hasError) {
-            //       return Center(child: Text("Error: ${snapshot.error}"));
-            //     } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            //       return Center(child: Text("No transactions found."));
-            //     } else {
-            //       final transactions = snapshot.data!;
-            //       return ListView.builder(
-            //         shrinkWrap: true,
-            //         physics: NeverScrollableScrollPhysics(),
-            //         itemCount: transactions.length,
-            //         itemBuilder: (context, index) {
-            //           final transaction = transactions[index];
-            //           return Padding(
-            //             padding: const EdgeInsets.symmetric(horizontal: 16),
-            //             child: Card(
-            //               child: ListTile(
-            //                 trailing: Row(
-            //                   mainAxisSize: MainAxisSize.min,
-            //                   children: [
-            //                     Icon(Icons.edit, color: Colors.blue),
-            //                     SizedBox(width: 16),
-            //                     Icon(Icons.delete, color: Colors.red),
-            //                   ],
-            //                 ),
-            //                 title: Text("Rp.${transaction.transaction.amount}"),
-            //                 subtitle: Text(transaction.category.name),
-            //                 leading: Container(
-            //                   decoration: BoxDecoration(
-            //                     color: Colors.white,
-            //                     borderRadius: BorderRadius.circular(8.0),
-            //                   ),
-            //                   child: Icon(
-            //                     transaction.transaction.type == 0
-            //                         ? Icons.upload
-            //                         : Icons.download,
-            //                     color: transaction.transaction.type == 0
-            //                         ? Colors.red
-            //                         : Colors.green,
-            //                   ),
-            //                 ),
-            //               ),
-            //             ),
-            //           );
-            //         },
-            //       );
-            //     }
-            //   },
-            // )
-            // Padding(
-            //   padding: const EdgeInsets.symmetric(horizontal: 16),
-            //   child: Card(
-            //     child: ListTile(
-            //       trailing: Row(
-            //         mainAxisSize: MainAxisSize.min,
-            //         children: [
-            //           Icon(Icons.edit, color: Colors.blue),
-            //           SizedBox(width: 16),
-            //           Icon(Icons.delete, color: Colors.red),
-            //         ],
-            //       ),
-            //       title: Text("Rp.200.000"),
-            //       subtitle: Text("Shopping"),
-            //       leading: Container(
-            //         decoration: BoxDecoration(
-            //           color: Colors.white,
-            //           borderRadius: BorderRadius.circular(8.0),
-            //         ),
-            //         child: Icon(Icons.download, color: Colors.green),
-            //       ),
-            //     ),
-            //   ),
-            // ),
+            SizedBox(height: 20),
 
-            // Padding(
-            //   padding: const EdgeInsets.symmetric(horizontal: 16),
-            //   child: Card(
-            //     child: ListTile(
-            //       trailing: Row(
-            //         mainAxisSize: MainAxisSize.min,
-            //         children: [
-            //           Icon(Icons.edit, color: Colors.blue),
-            //           SizedBox(width: 16),
-            //           Icon(Icons.delete, color: Colors.red),
-            //         ],
-            //       ),
-            //       title: Text("Rp.10.000.000"),
-            //       subtitle: Text("Gaji Bulanan"),
-            //       leading: Container(
-            //         decoration: BoxDecoration(
-            //           color: Colors.white,
-            //           borderRadius: BorderRadius.circular(8.0),
-            //         ),
-            //         child: Icon(Icons.download, color: Colors.green),
-            //       ),
-            //     ),
-            //   ),
-            // ),
+            Center(
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => LiveLocationPage()),
+                  );
+                },
+                child: Text("To Live Location Page"),
+              ),
+            ),
+
+            SizedBox(height: 80),
           ],
         ),
       ),
