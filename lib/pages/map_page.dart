@@ -75,7 +75,7 @@ class _MapPageState extends State<MapPage> {
   @override
   void initState() {
     super.initState();
-    getLocationUpdates();
+    getLocationUpdates().then((_) => getPolylinePoints());
   }
 
   Future<void> _cameraMove(LatLng pos) async {
