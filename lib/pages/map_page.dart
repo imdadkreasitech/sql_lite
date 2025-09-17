@@ -27,6 +27,7 @@ class _MapPageState extends State<MapPage> {
 
   final Completer<GoogleMapController> _mapController =
       Completer<GoogleMapController>();
+  Map<PolylineId, Polyline> polylines = {};
 
   @override
   Widget build(BuildContext context) {
@@ -68,6 +69,7 @@ class _MapPageState extends State<MapPage> {
                     ),
                   ),
                 },
+                polylines: Set<Polyline>.of(polylines.values),
               ),
     );
   }
@@ -75,7 +77,13 @@ class _MapPageState extends State<MapPage> {
   @override
   void initState() {
     super.initState();
-    getLocationUpdates().then((_) => getPolylinePoints());
+    getLocationUpdates().then(
+      (_) => {
+        getPolylinePoints().then((polylineCoordinates) {
+          generatePolylines(polylineCoordinates);
+        }),
+      },
+    );
   }
 
   Future<void> _cameraMove(LatLng pos) async {
@@ -137,5 +145,17 @@ class _MapPageState extends State<MapPage> {
               .toList();
     }
     return polylineCoordinates;
+  }
+
+  void generatePolylines(List<LatLng> polylineCoordinates) {
+    PolylineId id = PolylineId("poly");
+    Polyline polyline = Polyline(
+      polylineId: id,
+      color: Colors.blue,
+      points: polylineCoordinates,
+      width: 8,
+    );
+    polylines[id] = polyline;
+    setState(() {});
   }
 }
